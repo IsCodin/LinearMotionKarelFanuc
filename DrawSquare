@@ -1,0 +1,78 @@
+PROGRAM taskMotionv10
+----------------------------------------------------
+-- Creation date: 2022.02.09
+-- Created by: Cisco Industial Automation
+----------------------------------------------------
+-- Version: 1.0.0.0 - 00
+----------------------------------------------------
+-- Function: Move robot from XYZWPR positions
+--           display position on User Screen 
+----------------------------------------------------
+-- Last modified: 2022.02.09
+-- Last modified by:     
+----------------------------------------------------
+%COMMENT = 'MotionTask'
+%ALPHABETIZE
+%INCLUDE KLEVKEYS
+%INCLUDE KLEVKMSK
+%INCLUDE KLEVCCDF
+%INCLUDE KLIOUOP
+%INCLUDE KLIOTYPS
+
+----------------------------------------------------
+-- BEGIN MyProgram                             
+----------------------------------------------------
+VAR
+    positionMain : XYZWPR
+    gmessage : STRING [30]    
+    gconfig :CONFIG
+    gStatus : INTEGER
+--------------------------------------------------------
+-- Rutina punto de movimiento y display de posicion
+--------------------------------------------------------
+ROUTINE movPositionDisplay (posToGo : XYZWPR; message : STRING)
+
+    BEGIN
+        $MOTYPE = LINEAR
+        $TERMTYPE = FINE
+        $MCR.$GENOVERRIDE = 20
+        WRITE(message, CR)
+        MOVE TO posToGo
+        WRITE(posToGo, CR)
+    END movPositionDisplay
+
+ROUTINE TP_CLS FROM generalTask
+
+BEGIN
+    TP_CLS
+    DELAY 4000 
+    -- Configuracion de brazo 
+    CNV_STR_CONF(' NUT, 0, 0, 0', gconfig, gStatus)
+    
+    -- Posicion de inicio 
+    positionMain = POS(300, 0, 0, 180, 0, 0,gconfig)
+    gmessage = 'Posicion de Inicio'
+    movPositionDisplay (positionMain, gmessage)
+
+    -- Esquina 1 
+    positionMain.x = positionMain.x + 200
+    gmessage = 'Esquina 1'
+    movPositionDisplay (positionMain, gmessage)
+
+    -- Esquina 2 
+    positionMain.y = positionMain.y + 200
+    gmessage = 'Esquina 2'
+    movPositionDisplay (positionMain, gmessage)
+
+    -- Esquina 3 
+    positionMain.x = positionMain.x - 200
+    gmessage = 'Esquina 3'
+    movPositionDisplay (positionMain, gmessage)
+
+    -- Regresasr a Posicion de inicio 
+    positionMain.y = positionMain.y - 200
+    gmessage = 'Posicion de Inicio'
+    movPositionDisplay (positionMain, gmessage)
+
+
+END taskMotionv10
